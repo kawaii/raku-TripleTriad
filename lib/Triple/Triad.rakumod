@@ -45,3 +45,18 @@ class Deck is export {
     }
 }
 
+class Player is export {
+    has Str $.name;
+    has Deck $.deck;
+
+    submethod BUILD (: $!name!, Deck :$!deck!) { ... }
+}
+
+class Board is export {
+    has Card @.board[3;3] is rw = Nil xx 9; # Initializes a 3x3 matrix with all `Nil` values
+    has Player $.red-player;
+    has Player $.blue-player;
+    has Player %.ownership is rw;
+
+    submethod BUILD (Player :$!red-player!, Player :$!blue-player!) { ... }
+}
