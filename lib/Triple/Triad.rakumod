@@ -1,19 +1,17 @@
-unit class Triple::Triad;
+unit module Triple::Triad;
 
-enum Player <Red Blue>;
+enum Player is export <Red Blue>;
 
 # You can have as many rare or lower cards per deck as you like, but you may only have up to two epic or legendary cards, with only one legendary allowed per deck.
-enum Rarity <Common Uncommon Rare Epic Legendary>;
+enum Rarity is export <Common Uncommon Rare Epic Legendary>;
 # Certain cards have an icon on the upper right corner that represents a specific faction – "Primal", "Beastmen", "Scion", or "Garlean". These faction cards come into play during specific rules.
-enum Faction <Primal Beastmen Scion Garlean>;
+enum Faction is export <Primal Beastmen Scion Garlean>;
 
-class Card {
+class Card is export {
     has Str $.name;
     has Rarity $.rarity;
     has Hash $.face-values is rw;
     has Faction $.faction is rw = Nil;
-
-    has Bool $.played = False;  # new attribute to track if the card has been played
 
     # In the constructor, initialize face-values as an empty Hash and faction as an optional parameter.
     submethod BUILD (
@@ -32,7 +30,7 @@ class Card {
     }
 }
 
-class Deck {
+class Deck is export {
     has Player $.player;
     has Card @.cards;
 
@@ -44,11 +42,6 @@ class Deck {
 
         die "A deck can contain at most 2 Epic or Legendary cards" if $epic-legendary > 2;
         die "A deck can contain only 1 Legendary card" if $legendary > 1;
-    }
-
-    method play-card(Card $card) {
-        die "Card has already been played" if $card.played;
-        $card.played = True;
     }
 }
 
