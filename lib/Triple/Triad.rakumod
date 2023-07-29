@@ -1,5 +1,7 @@
 unit module Triple::Triad;
 
+use Triple::Triad::Rule;
+
 enum Player is export <Red Blue>;
 
 # You can have as many rare or lower cards per deck as you like, but you may only have up to two epic or legendary cards, with only one legendary allowed per deck.
@@ -59,4 +61,35 @@ class Board is export {
     has Player %.ownership is rw;
 
     submethod BUILD (Player :$!red-player!, Player :$!blue-player!) { ... }
+
+    method flip-card(Int $x, Int $y, Player $new-owner) {
+        @.board[$x;$y].owner = $new-owner;
+    }
+}
+
+class GameState is export {
+    has Board $.board;
+    has Rule @.rules;
+    has Player $.current-player is rw;
+
+    submethod BUILD (Board :$!board!, :@!rules!, Player :$starting-player!) {
+        $!current-player = $starting-player;
+    }
+
+    method play-card(Player $player, Card $card, Int $x, Int $y) {
+        die "It is not $player's turn" unless $player eqv $.current-player;
+        die "The specified board position is already occupied" if $.board.board[$x;$y].defined;
+        die "$player does not have the specified card in their deck" unless $card (elem) $.current-player.deck.cards;
+
+        # Place the card on the board
+        $.board.place-card($player, $card, $x, $y);
+
+        # Apply all active rules
+        for @.rules -> $rule {
+            $rule.run($.board, $x, $y);
+        }
+
+        # Switch to the other player for the next turn
+        $.current-player = $.current-player === $.board.red-player ?? $.board.blue-player !! $.board.red-player;
+    }
 }
